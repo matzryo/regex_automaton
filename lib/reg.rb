@@ -101,7 +101,7 @@ def parse_union(statement, pointer)
   [{union: {left_connection: left_connection, right_connection: right_connection}}, pointer]
 end
 
-regex = gets.chomp
+# regex = gets.chomp
 
 # p lexical_analysis regex
 
@@ -111,8 +111,8 @@ regex = gets.chomp
 # p closure
 # connection, p = parse_connection(regex, 0)
 # p connection
-union, p = lexical_analysis(regex)
-pp union
+# union, p = lexical_analysis(regex)
+# pp union
 
 
 

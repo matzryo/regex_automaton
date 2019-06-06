@@ -1,1 +1,9 @@
+# IntelliJのIDE設定
 /.idea
+
+# bundler関係
+/.bundle/
+/vendor/bundle
+
+# byebug
+/.byebug_history
