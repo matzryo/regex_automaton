@@ -31,7 +31,7 @@ def lexical_analysis(regex)
 end
 
 def parse_atom(statement, pointer)
-  return [nil, Float::INFINITY] if statement.length <= pointer
+  return [nil, pointer] if pointer >= statement.length
 
   char = statement.slice(pointer)
 
@@ -39,66 +39,68 @@ def parse_atom(statement, pointer)
   when '('
     pointer += 1
     union_in_parenthesis, pointer = parse_union(statement, pointer)
-    return [{union_in_parenthesis: union_in_parenthesis}, pointer]
+    pointer += 1 # 閉じカッコ, エラー出したほうがいいのかな
+    return [union_in_parenthesis, pointer]
   when 'a'..'z'
     pointer += 1
-    return [{atom: char}, pointer]
+    return [char, pointer]
   else
-    return [nil, Float::INFINITY]
+    # 例外
+    return [nil, pointer]
   end
 end
 
 def parse_closure(statement, pointer)
-  return [nil, Float::INFINITY] if statement.length <= pointer
+  return [nil, pointer] if pointer >= statement.length
 
   atom, pointer = parse_atom(statement, pointer)
 
-  return [{closure: atom}, pointer] if statement.length <= pointer
+  return [{ asta: false, atom: nil }, pointer] if atom.nil?
+  return [{ asta: false, atom: atom }, pointer] if pointer >= statement.length
 
   char = statement.slice(pointer)
 
   case char
   when '*'
-    return [{astarisk: '*'}, pointer]
+    pointer += 1
+    return [{ asta: true, atom: atom }, pointer]
   else
-    [{closure: atom}, pointer]
+    [{ asta: false, atom: atom }, pointer]
   end
 end
 
 def parse_connection(statement, pointer)
-  return [nil, Float::INFINITY] if pointer > statement.length
+  return [nil, pointer] if pointer >= statement.length
 
   left_closure, pointer = parse_closure(statement, pointer)
 
-  return [nil, Float::INFINITY] if left_closure.nil?
+  return [nil, pointer] if left_closure[:atom].nil?
 
-  right_closure, pointer = parse_connection(statement, pointer)
+  right_connection, pointer = parse_connection(statement, pointer)
 
-  if right_closure.nil?
-    return [{connection: {left_closure: left_closure, right_closure: nil}}, pointer]
-  end
+  return [{left_closure: left_closure, right_connection: nil}, pointer] if right_connection.nil?
 
-  [{connection: {left_closure: left_closure, right_closure: right_closure}}, pointer]
+  [{left_closure: left_closure, right_connection: right_connection}, pointer]
 end
 
 def parse_union(statement, pointer)
-  return [nil, Float::INFINITY] if pointer > statement.length
+  return [nil, pointer] if pointer >= statement.length
 
   left_connection, pointer = parse_connection(statement, pointer)
 
-  return [nil, Float::INFINITY] if left_connection.nil?
+  return [nil, pointer] if left_connection.nil?
 
-  if (statement.length <= pointer || statement.slice(pointer) != '+')
-    return [{union: {left_connection: left_connection, right_connection: nil}}, pointer]
+  if (pointer >= statement.length) || (statement.slice(pointer) != '+')
+    return [{plus: false, left_connection: left_connection, right_union: nil}, pointer]
   end
 
   pointer += 1
 
-  right_connection, pointer = parse_union(statement, pointer)
+  right_union, pointer = parse_union(statement, pointer)
 
-  return [nil, Float::INFINITY] if (right_connection.nil?)
+  return [nil, pointer] if (right_union.nil?)
 
-  [{union: {left_connection: left_connection, right_connection: right_connection}}, pointer]
+  [{plus: true, left_connection: left_connection, right_union: right_union}, pointer]
 end
 
 # regex = gets.chomp
