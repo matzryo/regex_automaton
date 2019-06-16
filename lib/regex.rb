@@ -103,18 +103,3 @@ def parse_union(statement, pointer)
   [{plus: true, left_connection: left_connection, right_union: right_union}, pointer]
 end
 
-# regex = gets.chomp
-
-# p lexical_analysis regex
-
-# atom, p = parse_atom(regex, 0)
-# p atom
-# closure, p = parse_closure(regex, 0)
-# p closure
-# connection, p = parse_connection(regex, 0)
-# p connection
-# union, p = lexical_analysis(regex)
-# pp union
-
-
-

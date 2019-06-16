@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'reg'
+require 'regex'
 
 describe 'test' do
   it 'test' do
