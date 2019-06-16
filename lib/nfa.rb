@@ -13,12 +13,15 @@ NFA = Struct.new(
 
 def build(term)
   case
+  # アルファベット
   when term.has_key?(:asta) && term[:asta] == false
-    # アルファベット
     build_nfa_from_alphabet term
+  # 閉包
   when term.has_key?(:asta) && term[:asta]
-    # 閉包
     build_nfa_from_closure term
+  # 連接
+  when term.has_key?(:left_closure)
+    build_nfa_from_connection term
   end
 end
 
@@ -41,27 +44,25 @@ end
 
 def build_nfa_from_closure(closure)
   # 苦しい, アルファベットもハッシュを返すべき
-  am = build asta: false, atom: closure[:atom]
+  nfa = build asta: false, atom: closure[:atom]
 
-  am.from.epsilon_destinations.push am.to
-  am.to.epsilon_destinations.push am.from
-  am
+  nfa.from.epsilon_destinations.push nfa.to
+  nfa.to.epsilon_destinations.push nfa.from
+  nfa
 end
 
-# def build_nfa_from_connection(connection)
-#   to = NFANode.new(
-#       edges: [],
-#       destinations: [],
-#       epsilon_destinations: [],
-#       is_final_destination: true,
-#       )
-#
-#   from = NFANode.new(
-#       edges: [connection[:atom], :epsilon],
-#       destinations: [to, to],
-#       epsilon_destinations: [],
-#       is_final_destination: false,
-#       )
-#
-#   NFA.new(from: from, to: to)
-# end
+def build_nfa_from_connection(connection)
+  left = build connection[:left_closure]
+  right =
+    # TODO: right_connectionにalphabetが入っていてもいいようにしたい。そうすればここの判定が不要になる
+    if connection[:right_connection][:right_connection].nil?
+      build connection[:right_connection][:left_closure]
+    else
+      build connection[:right_connection]
+    end
+
+  left.to.is_final_destination = false
+  left.to.epsilon_destinations.push right.to
+
+  NFA.new(from: left.from, to: right.to)
+end

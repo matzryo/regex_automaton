@@ -54,3 +54,50 @@ describe 'build_nfa_from_closure' do
                                                )
   end
 end
+
+describe 'build_nfa_from_connection' do
+  it '左と右のNFAをイプシロン遷移でつなげたオートマトンを返す' do
+    connection, _pointer = parse_connection('ab', 0)
+
+    right_to = NFANode.new(
+        edges: [],
+        destinations: [],
+        epsilon_destinations: [],
+        is_final_destination: true,
+        )
+
+
+    right_from = NFANode.new(
+        edges: ['b'],
+        destinations: [],
+        epsilon_destinations: [],
+        is_final_destination: false,
+        )
+
+    right_from.destinations.push right_to
+
+    right = NFA.new(from: right_from, to: right_to)
+
+    left_to = NFANode.new(
+        edges: [],
+        destinations: [],
+        epsilon_destinations: [right.to],
+        is_final_destination: false,
+        )
+
+    left_from = NFANode.new(
+        edges: ['a'],
+        destinations: [],
+        epsilon_destinations: [],
+        is_final_destination: false,
+        )
+
+    left_from.destinations.push left_to
+
+    left = NFA.new(from: left_from, to: left_to)
+
+    answer = NFA.new(from: left.from, to: right.to)
+
+    expect(build_nfa_from_connection(connection)).to eq(answer)
+  end
+end
