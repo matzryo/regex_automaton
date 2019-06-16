@@ -40,7 +40,7 @@ describe 'build_nfa_from_closure' do
         destinations: [],
         epsilon_destinations: [],
         is_final_destination: true,
-        )
+    )
     from.destinations.push to
 
     from.epsilon_destinations.push to
@@ -64,7 +64,7 @@ describe 'build_nfa_from_connection' do
         destinations: [],
         epsilon_destinations: [],
         is_final_destination: true,
-        )
+    )
 
 
     right_from = NFANode.new(
@@ -72,7 +72,7 @@ describe 'build_nfa_from_connection' do
         destinations: [],
         epsilon_destinations: [],
         is_final_destination: false,
-        )
+    )
 
     right_from.destinations.push right_to
 
@@ -83,14 +83,14 @@ describe 'build_nfa_from_connection' do
         destinations: [],
         epsilon_destinations: [right.to],
         is_final_destination: false,
-        )
+    )
 
     left_from = NFANode.new(
         edges: ['a'],
         destinations: [],
         epsilon_destinations: [],
         is_final_destination: false,
-        )
+    )
 
     left_from.destinations.push left_to
 
@@ -99,5 +99,41 @@ describe 'build_nfa_from_connection' do
     answer = NFA.new(from: left.from, to: right.to)
 
     expect(build_nfa_from_connection(connection)).to eq(answer)
+  end
+end
+
+describe 'build_nfa_from_union' do
+  it '和の初期状態から左と右の初期状態にイプシロン遷移を追加、左と右の受理状態から和の受理状態につなげたオートマトンを返す' do
+    parsed_left, _pointer = parse_connection('a', 0)
+    parsed_right, _pointer = parse_union('b', 0)
+    left = build(parsed_left)
+    right = build(parsed_right)
+
+    start = NFANode.new(
+        edges: [],
+        destinations: [],
+        epsilon_destinations: [],
+        is_final_destination: false
+    )
+
+
+    goal = NFANode.new(
+        edges: [],
+        destinations: [],
+        epsilon_destinations: [],
+        is_final_destination: true,
+    )
+
+    left.to.is_final_destination = false
+    right.to.is_final_destination = false
+    start.epsilon_destinations.push right.from
+    start.epsilon_destinations.push left.from
+    left.to.epsilon_destinations.push goal
+    right.to.epsilon_destinations.push goal
+
+    expected = NFA.new(from: start, to: goal)
+
+    parsed_union, _pointer = parse_union('a+b', 0)
+    expect(build_nfa_from_union(parsed_union)).to eq(expected)
   end
 end
