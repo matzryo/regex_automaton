@@ -1,6 +1,5 @@
 NFANode = Struct.new(
     :edges,
-    :destinations,
     :epsilon_destinations,
     :is_final_destination,
     keyword_init: true
@@ -30,15 +29,13 @@ end
 
 def build_nfa_from_alphabet(alphabet)
   to = NFANode.new(
-      edges: [],
-      destinations: [],
+      edges: {},
       epsilon_destinations: [],
       is_final_destination: true,
   )
 
   from = NFANode.new(
-      edges: [alphabet[:atom]],
-      destinations: [to],
+      edges: {alphabet[:atom] => to},
       epsilon_destinations: [],
       is_final_destination: false,
   )
@@ -84,15 +81,13 @@ def build_nfa_from_union(union)
   right = build union[:right_union]
 
   start = NFANode.new(
-    edges: [],
-    destinations: [],
+    edges: {},
     epsilon_destinations: [],
     is_final_destination: false,
   )
 
   goal = NFANode.new(
-      edges: [],
-      destinations: [],
+      edges: {},
       epsilon_destinations: [],
       is_final_destination: true,
   )
