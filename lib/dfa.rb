@@ -52,7 +52,7 @@ def convert(nfa)
         n = DFANode.new(is_final_destination: false)
         determined_nodes[nfa_node_set] = n
         queue.push nfa_node_set
-        next_node.edges = {char => Set.new([n])}
+        next_node.edges = {char => n}
       end
     end
   end
@@ -85,4 +85,18 @@ def get_nodes_connected_by_epsilon(nfa_node)
   end
 
   visited
+end
+
+def transit(dfa_node, char)
+  dfa_node.edges[char]
+end
+
+def does_accept(dfa, string)
+  node = dfa.from
+
+  string.each_char do |char|
+    node = transit(node, char)
+    return false if node.nil?
+  end
+  node.is_final_destination
 end
