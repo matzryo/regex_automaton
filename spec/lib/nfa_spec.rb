@@ -9,13 +9,13 @@ describe 'build_nfa_from_alphabet' do
 
     to = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: true,
     )
 
     from = NFANode.new(
         edges: {alphabet[:atom] => to},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: false,
     )
 
@@ -28,19 +28,19 @@ describe 'build_nfa_from_closure' do
     closure, _pointer = parse_closure('a*', 0)
     from = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: false,
     )
 
     to = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: true,
     )
     from.edges['a'] = to
 
-    from.epsilon_destinations.push to
-    to.epsilon_destinations.push from
+    from.epsilon_edges.push to
+    to.epsilon_edges.push from
 
     expect(build_nfa_from_closure(closure)).to eq(
                                                    NFA.new(
@@ -57,14 +57,14 @@ describe 'build_nfa_from_connection' do
 
     right_to = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: true,
     )
 
 
     right_from = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: false,
     )
 
@@ -74,13 +74,13 @@ describe 'build_nfa_from_connection' do
 
     left_to = NFANode.new(
         edges: {},
-        epsilon_destinations: [right.to],
+        epsilon_edges: [right.to],
         is_final_destination: false,
     )
 
     left_from = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: false,
     )
 
@@ -103,23 +103,23 @@ describe 'build_nfa_from_union' do
 
     start = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: false
     )
 
 
     goal = NFANode.new(
         edges: {},
-        epsilon_destinations: [],
+        epsilon_edges: [],
         is_final_destination: true,
     )
 
     left.to.is_final_destination = false
     right.to.is_final_destination = false
-    start.epsilon_destinations.push right.from
-    start.epsilon_destinations.push left.from
-    left.to.epsilon_destinations.push goal
-    right.to.epsilon_destinations.push goal
+    start.epsilon_edges.push right.from
+    start.epsilon_edges.push left.from
+    left.to.epsilon_edges.push goal
+    right.to.epsilon_edges.push goal
 
     expected = NFA.new(from: start, to: goal)
 

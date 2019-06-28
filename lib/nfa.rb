@@ -1,6 +1,6 @@
 NFANode = Struct.new(
     :edges,
-    :epsilon_destinations,
+    :epsilon_edges,
     :is_final_destination,
     keyword_init: true
 )
@@ -30,13 +30,13 @@ end
 def build_nfa_from_alphabet(alphabet)
   to = NFANode.new(
       edges: {},
-      epsilon_destinations: [],
+      epsilon_edges: [],
       is_final_destination: true,
   )
 
   from = NFANode.new(
       edges: {alphabet[:atom] => to},
-      epsilon_destinations: [],
+      epsilon_edges: [],
       is_final_destination: false,
   )
   NFA.new(from: from, to: to)
@@ -46,8 +46,8 @@ def build_nfa_from_closure(closure)
   # 苦しい, アルファベットもハッシュを返すべき
   nfa = build asta: false, atom: closure[:atom]
 
-  nfa.from.epsilon_destinations.push nfa.to
-  nfa.to.epsilon_destinations.push nfa.from
+  nfa.from.epsilon_edges.push nfa.to
+  nfa.to.epsilon_edges.push nfa.from
   nfa
 end
 
@@ -67,7 +67,7 @@ def build_nfa_from_connection(connection)
     end
 
   left.to.is_final_destination = false
-  left.to.epsilon_destinations.push right.to
+  left.to.epsilon_edges.push right.to
 
   NFA.new(from: left.from, to: right.to)
 end
@@ -82,22 +82,22 @@ def build_nfa_from_union(union)
 
   start = NFANode.new(
     edges: {},
-    epsilon_destinations: [],
+    epsilon_edges: [],
     is_final_destination: false,
   )
 
   goal = NFANode.new(
       edges: {},
-      epsilon_destinations: [],
+      epsilon_edges: [],
       is_final_destination: true,
   )
 
   left.to.is_final_destination = false
   right.to.is_final_destination = false
-  start.epsilon_destinations.push right.from
-  start.epsilon_destinations.push left.from
-  left.to.epsilon_destinations.push goal
-  right.to.epsilon_destinations.push goal
+  start.epsilon_edges.push right.from
+  start.epsilon_edges.push left.from
+  left.to.epsilon_edges.push goal
+  right.to.epsilon_edges.push goal
 
   NFA.new(from: start, to: goal)
 end
